@@ -8,20 +8,21 @@ import {
   Edit2,
   Trash2,
   ArrowRight,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Activity,
   AlertTriangle,
+  Target,
+  ShieldAlert,
+  Layers,
 } from "lucide-react";
-import { Outcome } from "@/lib/outcome";
 
 interface StrategyCardProps {
   id: string;
   name: string;
   symbol: string;
   tradeCount: number;
-  monthOutcome: Outcome;
+  tpValue?: number;
+  tpCount?: number;
+  slValue?: number;
+  slCount?: number;
   onRename: (id: string, currentName: string) => void;
   onDelete: (id: string, name: string) => Promise<void>;
 }
@@ -30,7 +31,10 @@ export function StrategyCard({
   id,
   name,
   tradeCount,
-  monthOutcome,
+  tpValue = 0,
+  tpCount = 0,
+  slValue = 0,
+  slCount = 0,
   onRename,
   onDelete,
 }: StrategyCardProps) {
@@ -117,51 +121,74 @@ export function StrategyCard({
             </div>
           </div>
 
-          {/* Trade count badge */}
-          <div className="mt-2.5 flex items-center gap-2 text-xs text-slate-500 font-medium">
-            <Activity className="w-3.5 h-3.5 text-slate-400" />
-            <span>
-              {tradeCount} total {tradeCount === 1 ? "trade" : "trades"}
-            </span>
+          {/* Sub-cards: Target (TP), Stop Loss (SL), and Total */}
+          <div className="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-slate-100">
+            {/* Target (TP) */}
+            <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Target (TP)
+                </span>
+                <div className="p-0.5 rounded-md bg-emerald-50 text-emerald-600 shrink-0">
+                  <Target className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-sm sm:text-base font-extrabold text-emerald-600 tracking-tight truncate">
+                  +{tpValue}
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">
+                  {tpCount} {tpCount === 1 ? "trade" : "trades"}
+                </p>
+              </div>
+            </div>
+
+            {/* Stop Loss (SL) */}
+            <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Stop Loss (SL)
+                </span>
+                <div className="p-0.5 rounded-md bg-rose-50 text-rose-600 shrink-0">
+                  <ShieldAlert className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-sm sm:text-base font-extrabold text-rose-600 tracking-tight truncate">
+                  -{slValue}
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">
+                  {slCount} {slCount === 1 ? "trade" : "trades"}
+                </p>
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Total
+                </span>
+                <div className="p-0.5 rounded-md bg-slate-200/70 text-slate-600 shrink-0">
+                  <Layers className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-sm sm:text-base font-extrabold text-slate-800 tracking-tight truncate">
+                  {tradeCount}
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">
+                  Total trades
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom row: Month Outcome and Open Link */}
-        <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-              This Month
-            </span>
-            <div
-              className={`inline-flex items-center gap-1 font-bold px-2.5 py-1 rounded-lg text-xs ${
-                monthOutcome.tradeCount === 0
-                  ? "bg-slate-100 text-slate-500 border border-slate-200"
-                  : monthOutcome.outcome === "TP"
-                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  : monthOutcome.outcome === "SL"
-                  ? "bg-rose-50 text-rose-700 border border-rose-200"
-                  : "bg-slate-100 text-slate-700 border border-slate-200"
-              }`}
-            >
-              {monthOutcome.tradeCount === 0 ? (
-                <span>No trades</span>
-              ) : (
-                <>
-                  {monthOutcome.outcome === "TP" && <TrendingUp className="w-3.5 h-3.5" />}
-                  {monthOutcome.outcome === "SL" && <TrendingDown className="w-3.5 h-3.5" />}
-                  {monthOutcome.outcome === "BE" && <Minus className="w-3.5 h-3.5" />}
-                  <span>
-                    {monthOutcome.outcome} {monthOutcome.value}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div
-            className="flex items-center gap-1 text-xs font-bold text-emerald-600 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all"
-          >
-            <span>Open</span>
+        {/* Footer: Open strategy */}
+        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end">
+          <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all">
+            <span>Open Strategy</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </div>
         </div>

@@ -47,18 +47,33 @@ export async function GET(
       orderBy: { createdAt: "desc" },
     });
 
-    const monthStartDate = new Date(startStr + "T00:00:00Z");
-    const monthEndDate = new Date(endStr + "T23:59:59Z");
+    let instrumentTpValue = 0;
+    let instrumentTpCount = 0;
+    let instrumentSlValue = 0;
+    let instrumentSlCount = 0;
+    let instrumentTotalTrades = 0;
 
     const result = strategies.map((strat) => {
-      const monthTrades = strat.trades.filter((t) => {
-        const d = new Date(t.tradeDate);
-        return d >= monthStartDate && d <= monthEndDate;
-      });
+      let tpValue = 0;
+      let tpCount = 0;
+      let slValue = 0;
+      let slCount = 0;
 
-      const monthOutcome = calculateOutcome(
-        monthTrades.map((t) => ({ type: t.type as "SL" | "TP", value: t.value }))
-      );
+      for (const t of strat.trades) {
+        if (t.type === "TP") {
+          tpCount++;
+          tpValue += t.value;
+          instrumentTpCount++;
+          instrumentTpValue += t.value;
+        } else if (t.type === "SL") {
+          slCount++;
+          slValue += t.value;
+          instrumentSlCount++;
+          instrumentSlValue += t.value;
+        }
+      }
+
+      instrumentTotalTrades += strat.trades.length;
 
       return {
         id: strat.id,
@@ -67,7 +82,10 @@ export async function GET(
         instrumentSymbol: instrument.symbol,
         instrumentName: instrument.displayName,
         totalTradeCount: strat.trades.length,
-        monthOutcome,
+        tpValue,
+        tpCount,
+        slValue,
+        slCount,
         createdAt: strat.createdAt,
       };
     });
@@ -78,6 +96,11 @@ export async function GET(
         symbol: instrument.symbol,
         displayName: instrument.displayName,
         market: instrument.market,
+        tpValue: instrumentTpValue,
+        tpCount: instrumentTpCount,
+        slValue: instrumentSlValue,
+        slCount: instrumentSlCount,
+        totalTrades: instrumentTotalTrades,
       },
       strategies: result,
     });

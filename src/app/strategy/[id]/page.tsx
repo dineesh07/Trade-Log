@@ -329,17 +329,9 @@ export default function StrategyPage() {
         ) : (
           <>
             {/* Section B: Summary Cards */}
-            {stats && (
-              <section>
-                <SummaryCards
-                  trades={trades}
-                  weekOutcome={stats.week}
-                  monthOutcome={stats.month}
-                  bestDay={stats.bestDay}
-                  worstDay={stats.worstDay}
-                />
-              </section>
-            )}
+            <section>
+              <SummaryCards trades={trades} />
+            </section>
 
             {/* Section C: Add Trade Form */}
             <section id="trade-form-section">

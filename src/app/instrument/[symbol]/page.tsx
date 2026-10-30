@@ -14,14 +14,23 @@ import {
   FolderOpen,
   Trash2,
   AlertTriangle,
+  Globe,
+  Landmark,
+  Target,
+  ShieldAlert,
+  Layers,
 } from "lucide-react";
-import { Outcome } from "@/lib/outcome";
 
 interface InstrumentData {
   id: string;
   symbol: string;
   displayName: string;
   market: "FOREX" | "INDIAN";
+  tpValue?: number;
+  tpCount?: number;
+  slValue?: number;
+  slCount?: number;
+  totalTrades?: number;
 }
 
 interface StrategyItem {
@@ -31,7 +40,10 @@ interface StrategyItem {
   instrumentSymbol: string;
   instrumentName: string;
   totalTradeCount: number;
-  monthOutcome: Outcome;
+  tpValue: number;
+  tpCount: number;
+  slValue: number;
+  slCount: number;
   createdAt: string;
 }
 
@@ -213,6 +225,111 @@ export default function InstrumentPage() {
           </div>
         </div>
 
+        {/* Instrument Overview Card */}
+        {instrument && (
+          <div className="glass-card p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`p-1.5 rounded-xl ${
+                    instrument.market === "FOREX"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-sky-100 text-sky-700"
+                  }`}
+                >
+                  {instrument.market === "FOREX" ? (
+                    <Globe className="w-4 h-4" />
+                  ) : (
+                    <Landmark className="w-4 h-4" />
+                  )}
+                </div>
+                <div>
+                  <h2 className="font-bold text-slate-900 text-sm sm:text-base">
+                    {instrument.displayName} ({instrument.symbol}) Overview
+                  </h2>
+                  <p className="text-[11px] text-slate-400">
+                    All-time cumulative performance across {strategies.length}{" "}
+                    {strategies.length === 1 ? "strategy" : "strategies"}
+                  </p>
+                </div>
+              </div>
+              <span
+                className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  instrument.market === "FOREX"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : "bg-sky-50 text-sky-700 border border-sky-200"
+                }`}
+              >
+                {instrument.market === "FOREX" ? "Forex" : "Indian"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4">
+              {/* Target (TP) */}
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                    Target (TP)
+                  </span>
+                  <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
+                    <Target className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-lg sm:text-2xl font-extrabold text-emerald-600 tracking-tight truncate">
+                    +{instrument.tpValue ?? 0}
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                    {instrument.tpCount ?? 0}{" "}
+                    {(instrument.tpCount ?? 0) === 1 ? "trade" : "trades"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Stop Loss (SL) */}
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                    Stop Loss (SL)
+                  </span>
+                  <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-lg sm:text-2xl font-extrabold text-rose-600 tracking-tight truncate">
+                    -{instrument.slValue ?? 0}
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                    {instrument.slCount ?? 0}{" "}
+                    {(instrument.slCount ?? 0) === 1 ? "trade" : "trades"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                    Total
+                  </span>
+                  <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600 shrink-0">
+                    <Layers className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-lg sm:text-2xl font-extrabold text-slate-800 tracking-tight truncate">
+                    {instrument.totalTrades ?? 0}
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                    Total trades
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Content Area */}
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center gap-3 text-slate-400">
@@ -249,7 +366,10 @@ export default function InstrumentPage() {
                 name={strategy.name}
                 symbol={symbol}
                 tradeCount={strategy.totalTradeCount}
-                monthOutcome={strategy.monthOutcome}
+                tpValue={strategy.tpValue}
+                tpCount={strategy.tpCount}
+                slValue={strategy.slValue}
+                slCount={strategy.slCount}
                 onRename={(id, name) => setRenameTarget({ id, name })}
                 onDelete={handleDeleteStrategy}
               />

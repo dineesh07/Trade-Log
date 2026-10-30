@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Outcome, calculateOutcome } from "@/lib/outcome";
 import { TradeRecord } from "@/lib/stats";
-import { formatDateDisplay } from "@/lib/dates";
 import {
   format,
   subWeeks,
@@ -12,32 +10,19 @@ import {
   parseISO,
 } from "date-fns";
 import {
-  TrendingUp,
-  TrendingDown,
-  Minus,
   Calendar,
-  Award,
-  Zap,
-  ChevronDown,
   Clock,
-  Flame,
+  Layers,
+  ChevronDown,
+  Target,
+  ShieldAlert,
 } from "lucide-react";
 
 interface SummaryCardsProps {
   trades?: TradeRecord[];
-  weekOutcome?: Outcome;
-  monthOutcome?: Outcome;
-  bestDay?: { date: string; net: number } | null;
-  worstDay?: { date: string; net: number } | null;
 }
 
-export function SummaryCards({
-  trades,
-  weekOutcome,
-  monthOutcome,
-  bestDay,
-  worstDay,
-}: SummaryCardsProps) {
+export function SummaryCards({ trades }: SummaryCardsProps) {
   const now = new Date();
 
   // Generate 8 recent week options (Monday to Sunday)
@@ -70,27 +55,35 @@ export function SummaryCards({
 
   const [selectedWeekIndex, setSelectedWeekIndex] = useState(0);
 
-  // Compute selected week outcome from trades
-  const currentWeekOutcome = useMemo(() => {
-    if (!trades || trades.length === 0) {
-      return (
-        weekOutcome || {
-          outcome: "BE" as const,
-          value: 0,
-          net: 0,
-          totalTP: 0,
-          totalSL: 0,
-          tradeCount: 0,
+  // Compute selected week stats
+  const weekStats = useMemo(() => {
+    let tpValue = 0;
+    let tpCount = 0;
+    let slValue = 0;
+    let slCount = 0;
+    if (trades && trades.length > 0) {
+      const option = weekOptions[selectedWeekIndex] || weekOptions[0];
+      for (const t of trades) {
+        const d = t.tradeDate.includes("T") ? t.tradeDate.split("T")[0] : t.tradeDate;
+        if (d >= option.startStr && d <= option.endStr) {
+          if (t.type === "TP") {
+            tpCount++;
+            tpValue += t.value;
+          } else if (t.type === "SL") {
+            slCount++;
+            slValue += t.value;
+          }
         }
-      );
+      }
     }
-    const option = weekOptions[selectedWeekIndex] || weekOptions[0];
-    const weekTrades = trades.filter((t) => {
-      const d = t.tradeDate.includes("T") ? t.tradeDate.split("T")[0] : t.tradeDate;
-      return d >= option.startStr && d <= option.endStr;
-    });
-    return calculateOutcome(weekTrades);
-  }, [trades, selectedWeekIndex, weekOptions, weekOutcome]);
+    return {
+      tpValue,
+      tpCount,
+      slValue,
+      slCount,
+      totalTrades: tpCount + slCount,
+    };
+  }, [trades, selectedWeekIndex, weekOptions]);
 
   // Generate distinct month options from trades + current month
   const monthOptions = useMemo(() => {
@@ -126,29 +119,61 @@ export function SummaryCards({
 
   const [selectedMonthKey, setSelectedMonthKey] = useState<string>(format(now, "yyyy-MM"));
 
-  // Compute selected month outcome from trades
-  const currentMonthOutcome = useMemo(() => {
-    if (!trades || trades.length === 0) {
-      return (
-        monthOutcome || {
-          outcome: "BE" as const,
-          value: 0,
-          net: 0,
-          totalTP: 0,
-          totalSL: 0,
-          tradeCount: 0,
+  // Compute selected month stats
+  const monthStats = useMemo(() => {
+    let tpValue = 0;
+    let tpCount = 0;
+    let slValue = 0;
+    let slCount = 0;
+    if (trades && trades.length > 0) {
+      for (const t of trades) {
+        const d = t.tradeDate.includes("T") ? t.tradeDate.split("T")[0] : t.tradeDate;
+        const matches = selectedMonthKey === "ALL" ? true : d.startsWith(selectedMonthKey);
+        if (matches) {
+          if (t.type === "TP") {
+            tpCount++;
+            tpValue += t.value;
+          } else if (t.type === "SL") {
+            slCount++;
+            slValue += t.value;
+          }
         }
-      );
+      }
     }
-    if (selectedMonthKey === "ALL") {
-      return calculateOutcome(trades);
+    return {
+      tpValue,
+      tpCount,
+      slValue,
+      slCount,
+      totalTrades: tpCount + slCount,
+    };
+  }, [trades, selectedMonthKey]);
+
+  // Compute all-time strategy stats
+  const allTimeStats = useMemo(() => {
+    let tpValue = 0;
+    let tpCount = 0;
+    let slValue = 0;
+    let slCount = 0;
+    if (trades) {
+      for (const t of trades) {
+        if (t.type === "TP") {
+          tpCount++;
+          tpValue += t.value;
+        } else if (t.type === "SL") {
+          slCount++;
+          slValue += t.value;
+        }
+      }
     }
-    const monthTrades = trades.filter((t) => {
-      const d = t.tradeDate.includes("T") ? t.tradeDate.split("T")[0] : t.tradeDate;
-      return d.startsWith(selectedMonthKey);
-    });
-    return calculateOutcome(monthTrades);
-  }, [trades, selectedMonthKey, monthOutcome]);
+    return {
+      tpValue,
+      tpCount,
+      slValue,
+      slCount,
+      totalTrades: tpCount + slCount,
+    };
+  }, [trades]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -156,27 +181,25 @@ export function SummaryCards({
       <div className="glass-card p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 shadow-xs transition-all flex flex-col justify-between">
         <div>
           {/* Card Header with selector and badge */}
-          <div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
+          <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                 <Calendar className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                Weekly Outcome
-              </span>
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800">
+                  Weekly Summary
+                </h3>
+              </div>
             </div>
 
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
-              {currentWeekOutcome.tradeCount}{" "}
-              {currentWeekOutcome.tradeCount === 1 ? "trade" : "trades"}
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Week
             </span>
           </div>
 
           {/* Period Selector Dropdown */}
           <div className="mb-4">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Select Week Period
-            </label>
             <div className="relative">
               <select
                 value={selectedWeekIndex}
@@ -194,83 +217,67 @@ export function SummaryCards({
             </div>
           </div>
 
-          {/* Main Outcome Hero Display */}
-          <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-between mb-4">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Net Result
-              </span>
-              <div className="text-2xl font-black tracking-tight mt-0.5">
-                {currentWeekOutcome.tradeCount === 0 ? (
-                  <span className="text-slate-400">0</span>
-                ) : currentWeekOutcome.net > 0 ? (
-                  <span className="text-emerald-600">+{currentWeekOutcome.net}</span>
-                ) : currentWeekOutcome.net < 0 ? (
-                  <span className="text-rose-600">{currentWeekOutcome.net}</span>
-                ) : (
-                  <span className="text-slate-700">0</span>
-                )}
+          {/* 3-column Sub-Cards: TP, SL, Total */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+            {/* Target (TP) */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Target (TP)
+                </span>
+                <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
+                  <Target className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-emerald-600 tracking-tight truncate">
+                  +{weekStats.tpValue}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  {weekStats.tpCount} {weekStats.tpCount === 1 ? "trade" : "trades"}
+                </p>
               </div>
             </div>
 
-            {/* Outcome Tag */}
-            <div>
-              {currentWeekOutcome.tradeCount === 0 ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200/60 text-slate-600">
-                  <Minus className="w-3.5 h-3.5" /> Even
+            {/* Stop Loss (SL) */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Stop Loss (SL)
                 </span>
-              ) : currentWeekOutcome.outcome === "TP" ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs">
-                  <TrendingUp className="w-3.5 h-3.5" /> TP {currentWeekOutcome.value}
-                </span>
-              ) : currentWeekOutcome.outcome === "SL" ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-rose-600 text-white shadow-xs">
-                  <TrendingDown className="w-3.5 h-3.5" /> SL {currentWeekOutcome.value}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-600 text-white">
-                  <Minus className="w-3.5 h-3.5" /> Break-even
-                </span>
-              )}
+                <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                  <ShieldAlert className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-rose-600 tracking-tight truncate">
+                  -{weekStats.slValue}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  {weekStats.slCount} {weekStats.slCount === 1 ? "trade" : "trades"}
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* 3-column stats breakdown */}
-        <div className="pt-3 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
-          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-              TP Points
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-emerald-600 mt-0.5 block">
-              +{currentWeekOutcome.totalTP}
-            </span>
-          </div>
-
-          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-              SL Points
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-rose-600 mt-0.5 block">
-              -{currentWeekOutcome.totalSL}
-            </span>
-          </div>
-
-          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-              Net Status
-            </span>
-            <span
-              className={`text-xs sm:text-sm font-extrabold mt-0.5 block ${
-                currentWeekOutcome.net > 0
-                  ? "text-emerald-600"
-                  : currentWeekOutcome.net < 0
-                  ? "text-rose-600"
-                  : "text-slate-600"
-              }`}
-            >
-              {currentWeekOutcome.net > 0 ? "Profit" : currentWeekOutcome.net < 0 ? "Loss" : "Even"}
-            </span>
+            {/* Total */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Total
+                </span>
+                <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600 shrink-0">
+                  <Layers className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-slate-800 tracking-tight truncate">
+                  {weekStats.totalTrades}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  Total trades
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -279,27 +286,25 @@ export function SummaryCards({
       <div className="glass-card p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 shadow-xs transition-all flex flex-col justify-between">
         <div>
           {/* Card Header with selector and badge */}
-          <div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
+          <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
                 <Clock className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                Monthly Outcome
-              </span>
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800">
+                  Monthly Summary
+                </h3>
+              </div>
             </div>
 
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
-              {currentMonthOutcome.tradeCount}{" "}
-              {currentMonthOutcome.tradeCount === 1 ? "trade" : "trades"}
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+              Month
             </span>
           </div>
 
           {/* Period Selector Dropdown */}
           <div className="mb-4">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Select Month Period
-            </label>
             <div className="relative">
               <select
                 value={selectedMonthKey}
@@ -317,160 +322,160 @@ export function SummaryCards({
             </div>
           </div>
 
-          {/* Main Outcome Hero Display */}
-          <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-between mb-4">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Net Result
-              </span>
-              <div className="text-2xl font-black tracking-tight mt-0.5">
-                {currentMonthOutcome.tradeCount === 0 ? (
-                  <span className="text-slate-400">0</span>
-                ) : currentMonthOutcome.net > 0 ? (
-                  <span className="text-emerald-600">+{currentMonthOutcome.net}</span>
-                ) : currentMonthOutcome.net < 0 ? (
-                  <span className="text-rose-600">{currentMonthOutcome.net}</span>
-                ) : (
-                  <span className="text-slate-700">0</span>
-                )}
+          {/* 3-column Sub-Cards: TP, SL, Total */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+            {/* Target (TP) */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Target (TP)
+                </span>
+                <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
+                  <Target className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-emerald-600 tracking-tight truncate">
+                  +{monthStats.tpValue}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  {monthStats.tpCount} {monthStats.tpCount === 1 ? "trade" : "trades"}
+                </p>
               </div>
             </div>
 
-            {/* Outcome Tag */}
-            <div>
-              {currentMonthOutcome.tradeCount === 0 ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200/60 text-slate-600">
-                  <Minus className="w-3.5 h-3.5" /> Even
+            {/* Stop Loss (SL) */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Stop Loss (SL)
                 </span>
-              ) : currentMonthOutcome.outcome === "TP" ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs">
-                  <TrendingUp className="w-3.5 h-3.5" /> TP {currentMonthOutcome.value}
-                </span>
-              ) : currentMonthOutcome.outcome === "SL" ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-rose-600 text-white shadow-xs">
-                  <TrendingDown className="w-3.5 h-3.5" /> SL {currentMonthOutcome.value}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-600 text-white">
-                  <Minus className="w-3.5 h-3.5" /> Break-even
-                </span>
-              )}
+                <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                  <ShieldAlert className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-rose-600 tracking-tight truncate">
+                  -{monthStats.slValue}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  {monthStats.slCount} {monthStats.slCount === 1 ? "trade" : "trades"}
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* 3-column stats breakdown */}
-        <div className="pt-3 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
-          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-              TP Points
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-emerald-600 mt-0.5 block">
-              +{currentMonthOutcome.totalTP}
-            </span>
-          </div>
-
-          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-              SL Points
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-rose-600 mt-0.5 block">
-              -{currentMonthOutcome.totalSL}
-            </span>
-          </div>
-
-          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-              Net Status
-            </span>
-            <span
-              className={`text-xs sm:text-sm font-extrabold mt-0.5 block ${
-                currentMonthOutcome.net > 0
-                  ? "text-emerald-600"
-                  : currentMonthOutcome.net < 0
-                  ? "text-rose-600"
-                  : "text-slate-600"
-              }`}
-            >
-              {currentMonthOutcome.net > 0 ? "Profit" : currentMonthOutcome.net < 0 ? "Loss" : "Even"}
-            </span>
+            {/* Total */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Total
+                </span>
+                <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600 shrink-0">
+                  <Layers className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-slate-800 tracking-tight truncate">
+                  {monthStats.totalTrades}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  Total trades
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 3. Peak Performance Card (Best & Worst Day) */}
+      {/* 3. All-Time Overall Strategy Performance Card */}
       <div className="glass-card p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 shadow-xs transition-all flex flex-col justify-between">
         <div>
           {/* Header */}
-          <div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
+          <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                <Flame className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                <Layers className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                Peak Days
-              </span>
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800">
+                  All-Time Strategy Totals
+                </h3>
+              </div>
             </div>
 
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60">
-              Extremes
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+              Overall
             </span>
           </div>
 
           <div className="mb-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Historical Records
-            </span>
-            <p className="text-xs text-slate-500 font-medium">
-              Highest single-day profit vs biggest single-day drawdown
+            <p className="text-xs text-slate-500 font-medium py-1">
+              Cumulative Target vs Stop Loss across all recorded entries
             </p>
           </div>
 
-          {/* Best Day and Worst Day tiles */}
-          <div className="space-y-2.5 mb-4">
-            {/* Best Day */}
-            <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <Zap className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-slate-800 block">Best Day</span>
-                  <span className="text-[11px] text-slate-500">
-                    {bestDay?.date ? formatDateDisplay(bestDay.date) : "No entries"}
-                  </span>
+          {/* 3-column Sub-Cards: TP, SL, Total */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+            {/* Target (TP) */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Target (TP)
+                </span>
+                <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
+                  <Target className="w-3 h-3" />
                 </div>
               </div>
-              <span className="text-base font-black text-emerald-700">
-                {bestDay ? (bestDay.net > 0 ? `+${bestDay.net}` : bestDay.net) : "-"}
-              </span>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-emerald-600 tracking-tight truncate">
+                  +{allTimeStats.tpValue}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  {allTimeStats.tpCount} {allTimeStats.tpCount === 1 ? "trade" : "trades"}
+                </p>
+              </div>
             </div>
 
-            {/* Worst Day */}
-            <div className="p-3 rounded-xl bg-rose-50/60 border border-rose-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
-                  <TrendingDown className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-slate-800 block">Worst Day</span>
-                  <span className="text-[11px] text-slate-500">
-                    {worstDay?.date ? formatDateDisplay(worstDay.date) : "No entries"}
-                  </span>
+            {/* Stop Loss (SL) */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Stop Loss (SL)
+                </span>
+                <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                  <ShieldAlert className="w-3 h-3" />
                 </div>
               </div>
-              <span className="text-base font-black text-rose-700">
-                {worstDay ? (worstDay.net > 0 ? `+${worstDay.net}` : worstDay.net) : "-"}
-              </span>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-rose-600 tracking-tight truncate">
+                  -{allTimeStats.slValue}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  {allTimeStats.slCount} {allTimeStats.slCount === 1 ? "trade" : "trades"}
+                </p>
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Total
+                </span>
+                <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600 shrink-0">
+                  <Layers className="w-3 h-3" />
+                </div>
+              </div>
+              <div>
+                <div className="text-base sm:text-xl font-extrabold text-slate-800 tracking-tight truncate">
+                  {allTimeStats.totalTrades}
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
+                  Total trades
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Footer note */}
-        <div className="pt-3 border-t border-slate-100 text-center">
-          <span className="text-[11px] font-semibold text-slate-400">
-            Calculated strictly from recorded entries
-          </span>
         </div>
       </div>
     </div>

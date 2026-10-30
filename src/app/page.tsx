@@ -95,13 +95,36 @@ export default async function DashboardPage() {
   const forexTotalTrades = forexTpCount + forexSlCount;
   const indianTotalTrades = indianTpCount + indianSlCount;
 
-  const instrumentTrades = new Map<string, Array<{ type: "SL" | "TP"; value: number }>>();
-  for (const trade of monthTrades) {
-    const instId = strategyToInstrument.get(trade.strategyId);
+  // Compute per-instrument TP, SL, and total stats
+  const instrumentStats = new Map<
+    string,
+    { tpValue: number; tpCount: number; slValue: number; slCount: number; totalTrades: number }
+  >();
+
+  for (const inst of instruments) {
+    instrumentStats.set(inst.id, {
+      tpValue: 0,
+      tpCount: 0,
+      slValue: 0,
+      slCount: 0,
+      totalTrades: 0,
+    });
+  }
+
+  for (const t of allUserTrades) {
+    const instId = strategyToInstrument.get(t.strategyId);
     if (instId) {
-      const list = instrumentTrades.get(instId) || [];
-      list.push({ type: trade.type as "SL" | "TP", value: trade.value });
-      instrumentTrades.set(instId, list);
+      const stats = instrumentStats.get(instId);
+      if (stats) {
+        stats.totalTrades++;
+        if (t.type === "TP") {
+          stats.tpCount++;
+          stats.tpValue += t.value;
+        } else if (t.type === "SL") {
+          stats.slCount++;
+          stats.slValue += t.value;
+        }
+      }
     }
   }
 
@@ -145,8 +168,13 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {forexInstruments.map((inst) => {
-              const trades = instrumentTrades.get(inst.id) || [];
-              const outcome = calculateOutcome(trades);
+              const stats = instrumentStats.get(inst.id) || {
+                tpValue: 0,
+                tpCount: 0,
+                slValue: 0,
+                slCount: 0,
+                totalTrades: 0,
+              };
               return (
                 <InstrumentCard
                   key={inst.id}
@@ -154,7 +182,11 @@ export default async function DashboardPage() {
                   displayName={inst.displayName}
                   market="FOREX"
                   strategyCount={inst.strategies.length}
-                  monthOutcome={outcome}
+                  tpValue={stats.tpValue}
+                  tpCount={stats.tpCount}
+                  slValue={stats.slValue}
+                  slCount={stats.slCount}
+                  totalTrades={stats.totalTrades}
                 />
               );
             })}
@@ -179,8 +211,13 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {indianInstruments.map((inst) => {
-              const trades = instrumentTrades.get(inst.id) || [];
-              const outcome = calculateOutcome(trades);
+              const stats = instrumentStats.get(inst.id) || {
+                tpValue: 0,
+                tpCount: 0,
+                slValue: 0,
+                slCount: 0,
+                totalTrades: 0,
+              };
               return (
                 <InstrumentCard
                   key={inst.id}
@@ -188,7 +225,11 @@ export default async function DashboardPage() {
                   displayName={inst.displayName}
                   market="INDIAN"
                   strategyCount={inst.strategies.length}
-                  monthOutcome={outcome}
+                  tpValue={stats.tpValue}
+                  tpCount={stats.tpCount}
+                  slValue={stats.slValue}
+                  slCount={stats.slCount}
+                  totalTrades={stats.totalTrades}
                 />
               );
             })}
