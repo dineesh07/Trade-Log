@@ -37,16 +37,6 @@ export default function LoginPage() {
     }
   };
 
-  const fillUser01 = () => {
-    setEmail("user01");
-    setPassword("pass123");
-  };
-
-  const fillDemo = () => {
-    setEmail("trader@example.com");
-    setPassword("password123");
-  };
-
   return (
     <main className="min-h-screen flex items-center justify-center p-4 bg-slate-50 relative overflow-hidden">
       {/* Background ambient decorative glows */}
@@ -139,25 +129,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick autofill helper */}
-          <div className="mt-6 pt-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
-            <button
-              type="button"
-              onClick={fillUser01}
-              className="text-xs text-slate-600 hover:text-emerald-700 underline underline-offset-4 font-semibold transition-colors"
-            >
-              Fill user01 (pass123)
-            </button>
-            <span className="hidden sm:inline text-slate-300">•</span>
-            <button
-              type="button"
-              onClick={fillDemo}
-              className="text-xs text-slate-500 hover:text-emerald-700 underline underline-offset-4 font-semibold transition-colors"
-            >
-              Fill demo (trader@example.com)
-            </button>
-          </div>
         </div>
       </div>
     </main>
