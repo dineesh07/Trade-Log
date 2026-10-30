@@ -88,7 +88,7 @@ export async function clearSessionCookie() {
  * Authenticates user credentials against the database
  */
 export async function authenticateCredentials(
-  email: string,
+  identifier: string,
   plainPassword: string
 ): Promise<{ user?: SessionUser; error?: string }> {
   try {
@@ -99,17 +99,24 @@ export async function authenticateCredentials(
       };
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+    const clean = identifier.toLowerCase().trim();
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: clean },
+          { email: clean.includes("@") ? clean : `${clean}@example.com` },
+          { name: { equals: clean, mode: "insensitive" } },
+        ],
+      },
     });
 
     if (!user) {
-      return { error: "Invalid email or password" };
+      return { error: "Invalid username, email, or password" };
     }
 
     const isValid = await bcrypt.compare(plainPassword, user.passwordHash);
     if (!isValid) {
-      return { error: "Invalid email or password" };
+      return { error: "Invalid username, email, or password" };
     }
 
     return {

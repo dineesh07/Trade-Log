@@ -37,6 +37,11 @@ export default function LoginPage() {
     }
   };
 
+  const fillUser01 = () => {
+    setEmail("user01");
+    setPassword("pass123");
+  };
+
   const fillDemo = () => {
     setEmail("trader@example.com");
     setPassword("password123");
@@ -76,17 +81,19 @@ export default function LoginPage() {
                 htmlFor="email-input"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2"
               >
-                Email Address
+                Email or Username
               </label>
               <div className="relative">
                 <Mail className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   id="email-input"
-                  type="email"
+                  type="text"
+                  autoCapitalize="none"
+                  autoCorrect="off"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="trader@example.com"
+                  placeholder="user01 or trader@example.com"
                   className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm font-medium"
                 />
               </div>
@@ -134,13 +141,21 @@ export default function LoginPage() {
           </form>
 
           {/* Quick autofill helper */}
-          <div className="mt-6 pt-5 border-t border-slate-200 text-center">
+          <div className="mt-6 pt-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
+            <button
+              type="button"
+              onClick={fillUser01}
+              className="text-xs text-slate-600 hover:text-emerald-700 underline underline-offset-4 font-semibold transition-colors"
+            >
+              Fill user01 (pass123)
+            </button>
+            <span className="hidden sm:inline text-slate-300">•</span>
             <button
               type="button"
               onClick={fillDemo}
               className="text-xs text-slate-500 hover:text-emerald-700 underline underline-offset-4 font-semibold transition-colors"
             >
-              Fill default seed credentials (trader@example.com)
+              Fill demo (trader@example.com)
             </button>
           </div>
         </div>
