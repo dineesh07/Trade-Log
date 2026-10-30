@@ -57,7 +57,7 @@ export function DashboardOverview({
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="self-start sm:self-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95 group"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95 group"
           >
             <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-200" />
             <span>Add Instrument</span>
@@ -87,62 +87,62 @@ export function DashboardOverview({
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4">
               {/* Forex TP */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
                     Target (TP)
                   </span>
-                  <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600">
+                  <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
                     <Target className="w-3.5 h-3.5" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 tracking-tight">
+                  <div className="text-lg sm:text-2xl font-extrabold text-emerald-600 tracking-tight truncate">
                     +{forexTpValue}
                   </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
                     {forexTpCount} {forexTpCount === 1 ? "trade" : "trades"}
                   </p>
                 </div>
               </div>
 
               {/* Forex SL */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
                     Stop Loss (SL)
                   </span>
-                  <div className="p-1 rounded-lg bg-rose-50 text-rose-600">
+                  <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
                     <ShieldAlert className="w-3.5 h-3.5" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-rose-600 tracking-tight">
+                  <div className="text-lg sm:text-2xl font-extrabold text-rose-600 tracking-tight truncate">
                     -{forexSlValue}
                   </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
                     {forexSlCount} {forexSlCount === 1 ? "trade" : "trades"}
                   </p>
                 </div>
               </div>
 
               {/* Forex Total */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
                     Total
                   </span>
-                  <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600">
+                  <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600 shrink-0">
                     <Layers className="w-3.5 h-3.5" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
+                  <div className="text-lg sm:text-2xl font-extrabold text-slate-800 tracking-tight truncate">
                     {forexTotalTrades}
                   </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
                     Total trades
                   </p>
                 </div>
@@ -171,62 +171,62 @@ export function DashboardOverview({
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4">
               {/* Indian TP */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
                     Target (TP)
                   </span>
-                  <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600">
+                  <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
                     <Target className="w-3.5 h-3.5" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 tracking-tight">
+                  <div className="text-lg sm:text-2xl font-extrabold text-emerald-600 tracking-tight truncate">
                     +{indianTpValue}
                   </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
                     {indianTpCount} {indianTpCount === 1 ? "trade" : "trades"}
                   </p>
                 </div>
               </div>
 
               {/* Indian SL */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
                     Stop Loss (SL)
                   </span>
-                  <div className="p-1 rounded-lg bg-rose-50 text-rose-600">
+                  <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
                     <ShieldAlert className="w-3.5 h-3.5" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-rose-600 tracking-tight">
+                  <div className="text-lg sm:text-2xl font-extrabold text-rose-600 tracking-tight truncate">
                     -{indianSlValue}
                   </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
                     {indianSlCount} {indianSlCount === 1 ? "trade" : "trades"}
                   </p>
                 </div>
               </div>
 
               {/* Indian Total */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+              <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
                     Total
                   </span>
-                  <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600">
+                  <div className="p-1 rounded-lg bg-slate-200/70 text-slate-600 shrink-0">
                     <Layers className="w-3.5 h-3.5" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
+                  <div className="text-lg sm:text-2xl font-extrabold text-slate-800 tracking-tight truncate">
                     {indianTotalTrades}
                   </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
                     Total trades
                   </p>
                 </div>

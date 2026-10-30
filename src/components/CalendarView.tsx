@@ -53,17 +53,17 @@ export function CalendarView({
   const weekDayHeaders = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="glass-panel p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
+    <div className="glass-panel p-3.5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
       {/* Calendar Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+      <div className="flex items-center justify-between gap-2 pb-4 sm:pb-5 border-b border-slate-200">
         <div className="flex items-center gap-2">
-          <CalendarIcon className="w-4 h-4 text-emerald-600" />
-          <h3 className="text-base font-bold text-slate-900">
+          <CalendarIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 truncate">
             {format(selectedMonth, "MMMM yyyy")}
           </h3>
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-auto">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => onMonthChange(new Date())}
             className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
@@ -90,11 +90,11 @@ export function CalendarView({
       </div>
 
       {/* Weekday Labels (Monday First) */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-2 mt-4 text-center">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 mt-3 sm:mt-4 text-center">
         {weekDayHeaders.map((day) => (
           <div
             key={day}
-            className="py-1 text-[11px] font-bold uppercase tracking-wider text-slate-500"
+            className="py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500"
           >
             {day}
           </div>
@@ -143,7 +143,7 @@ export function CalendarView({
             <button
               key={dateStr}
               onClick={() => onSelectDay(dateStr)}
-              className={`min-h-[70px] sm:min-h-[85px] p-2 sm:p-2.5 rounded-xl border flex flex-col justify-between text-left transition-all duration-150 active:scale-95 group relative ${cellStyle} ${
+              className={`min-h-[58px] sm:min-h-[85px] p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border flex flex-col justify-between text-left transition-all duration-150 active:scale-95 group relative ${cellStyle} ${
                 isToday
                   ? hasTrades
                     ? "ring-2 ring-slate-900 ring-offset-2 ring-offset-white font-bold"
@@ -153,13 +153,13 @@ export function CalendarView({
             >
               {/* Day number */}
               <div className="flex items-center justify-between w-full">
-                <span className={`text-xs ${dayNumStyle}`}>
+                <span className={`text-[10px] sm:text-xs ${dayNumStyle}`}>
                   {format(date, "d")}
                 </span>
 
                 {isToday && (
                   <span
-                    className={`w-2 h-2 rounded-full ${
+                    className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${
                       hasTrades ? "bg-white" : "bg-emerald-600"
                     }`}
                   />
@@ -168,16 +168,16 @@ export function CalendarView({
 
               {/* Day Outcome result */}
               {hasTrades ? (
-                <div className="mt-1 flex flex-col items-start leading-tight">
+                <div className="mt-0.5 sm:mt-1 flex flex-col items-start leading-tight overflow-hidden w-full">
                   <span className={valueStyle}>
                     {dayOutcome.net > 0 ? `+${dayOutcome.net}` : dayOutcome.net}
                   </span>
-                  <span className={labelStyle}>
+                  <span className={`${labelStyle} truncate w-full`}>
                     {dayOutcome.outcome} ({dayOutcome.tradeCount})
                   </span>
                 </div>
               ) : (
-                <div className="h-4" />
+                <div className="h-3 sm:h-4" />
               )}
             </button>
           );

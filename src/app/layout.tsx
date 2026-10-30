@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: "TradeLog - Private Trading Journal",
   description:
     "Private, single-user trading journal to record trades, calculate day, week, and month outcomes with color-coded calendar and interactive charts.",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

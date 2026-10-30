@@ -103,14 +103,16 @@ export function TradesTable({
         </div>
 
         {/* Month Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-xs text-slate-600 font-medium">Month:</span>
+        <div className="flex items-center gap-2 justify-between sm:justify-start w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+            <Filter className="w-3.5 h-3.5 text-slate-400" />
+            <span>Month:</span>
+          </div>
           <select
             id="month-filter-select"
             value={selectedMonth}
             onChange={(e) => onMonthChange(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            className="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
           >
             <option value="ALL">All Recorded Months</option>
             {availableMonths.map((m) => (
