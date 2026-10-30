@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Market {
+  FOREX
+  INDIAN
+}
+
+enum TradeType {
+  SL
+  TP
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime   @default(now())
+  strategies   Strategy[]
+  trades       Trade[]
+}
+
+model Instrument {
+  id          String     @id @default(cuid())
+  market      Market
+  symbol      String     @unique // XAUUSD, EURUSD, BTCUSD, NIFTY, SENSEX, BANKNIFTY
+  displayName String // "XAU/USD", "EUR/USD", ...
+  sortOrder   Int        @default(0)
+  strategies  Strategy[]
+}
+
+model Strategy {
+  id           String     @id @default(cuid())
+  userId       String
+  instrumentId String
+  name         String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instrument   Instrument @relation(fields: [instrumentId], references: [id])
+  trades       Trade[]
+
+  @@unique([userId, instrumentId, name])
+  @@index([userId, instrumentId])
+}
+
+model Trade {
+  id         String    @id @default(cuid())
+  userId     String
+  strategyId String
+  tradeDate  DateTime  @db.Date // date only, no timezone shift
+  tradeTime  String // "HH:mm" 24h, IST
+  type       TradeType
+  value      Int // positive whole number
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategy   Strategy  @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@index([strategyId, tradeDate])
+  @@index([userId, tradeDate])
+}
