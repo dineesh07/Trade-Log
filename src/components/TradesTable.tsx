@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   Inbox,
   Filter,
+  ArrowRightLeft,
 } from "lucide-react";
 
 interface TradesTableProps {
@@ -138,123 +139,136 @@ export function TradesTable({
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[620px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                <th className="py-3.5 px-4 w-44">DATE</th>
-                <th className="py-3.5 px-4 w-28">TIME</th>
-                <th className="py-3.5 px-4 w-28 text-rose-700">SL</th>
-                <th className="py-3.5 px-4 w-28 text-emerald-700">TP</th>
-                <th className="py-3.5 px-4 w-36 text-center">OUTCOME</th>
-                <th className="py-3.5 px-4 w-20 text-right">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 text-xs">
-              {visibleDays.map((group) => {
-                const rowCount = group.trades.length;
-                const isTp = group.outcome.outcome === "TP";
-                const isSl = group.outcome.outcome === "SL";
+        <>
+          {/* Mobile Horizontal Scroll Indicator Banner */}
+          <div className="md:hidden flex items-center justify-between px-3.5 py-2 bg-slate-50 border-b border-slate-200 text-[11px] text-slate-500 font-medium">
+            <span className="flex items-center gap-1.5">
+              <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Scroll horizontally for all columns</span>
+            </span>
+            <span className="text-emerald-700 font-bold text-[10px] uppercase tracking-wider bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded">
+              Swipe →
+            </span>
+          </div>
 
-                return group.trades.map((trade, index) => {
-                  const isFirstRow = index === 0;
+          <div className="table-scroll-container pb-2">
+            <table className="w-full text-left border-collapse min-w-[500px] sm:min-w-[620px]">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th className="py-3 px-3 sm:px-4 w-36 sm:w-44">DATE</th>
+                  <th className="py-3 px-2.5 sm:px-4 w-20 sm:w-28">TIME</th>
+                  <th className="py-3 px-2.5 sm:px-4 w-16 sm:w-24 text-rose-700">SL</th>
+                  <th className="py-3 px-2.5 sm:px-4 w-16 sm:w-24 text-emerald-700">TP</th>
+                  <th className="py-3 px-2.5 sm:px-4 w-28 sm:w-36 text-center">OUTCOME</th>
+                  <th className="py-3 px-2 sm:px-4 w-16 sm:w-20 text-right">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 text-xs">
+                {visibleDays.map((group) => {
+                  const rowCount = group.trades.length;
+                  const isTp = group.outcome.outcome === "TP";
+                  const isSl = group.outcome.outcome === "SL";
 
-                  return (
-                    <tr
-                      key={trade.id}
-                      className="hover:bg-slate-50 transition-colors"
-                    >
-                      {/* Merged DATE cell */}
-                      {isFirstRow && (
-                        <td
-                          rowSpan={rowCount}
-                          className="py-3.5 px-4 align-top font-bold text-slate-900 border-r border-slate-200 bg-slate-50/70 whitespace-nowrap"
-                        >
-                          <div className="sticky top-20 flex flex-col">
-                            <span className="text-sm font-bold">{formatDateWithMonthName(group.date)}</span>
-                            <span className="text-[11px] text-slate-500 font-normal mt-0.5">
-                              {rowCount} {rowCount === 1 ? "entry" : "entries"}
-                            </span>
-                          </div>
+                  return group.trades.map((trade, index) => {
+                    const isFirstRow = index === 0;
+
+                    return (
+                      <tr
+                        key={trade.id}
+                        className="hover:bg-slate-50 transition-colors"
+                      >
+                        {/* Merged DATE cell */}
+                        {isFirstRow && (
+                          <td
+                            rowSpan={rowCount}
+                            className="py-3 px-3 sm:px-4 align-top font-bold text-slate-900 border-r border-slate-200 bg-slate-50/70 whitespace-nowrap"
+                          >
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm font-bold">{formatDateWithMonthName(group.date)}</span>
+                              <span className="text-[10px] sm:text-[11px] text-slate-500 font-normal mt-0.5">
+                                {rowCount} {rowCount === 1 ? "entry" : "entries"}
+                              </span>
+                            </div>
+                          </td>
+                        )}
+
+                        {/* TIME cell (12h format AM/PM) */}
+                        <td className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-slate-700 font-medium whitespace-nowrap text-xs">
+                          {formatTimeDisplay(trade.tradeTime)}
                         </td>
-                      )}
 
-                      {/* TIME cell (12h format AM/PM) */}
-                      <td className="py-3 px-4 text-slate-700 font-medium whitespace-nowrap">
-                        {formatTimeDisplay(trade.tradeTime)}
-                      </td>
+                        {/* SL column */}
+                        <td className="py-2.5 sm:py-3 px-2.5 sm:px-4 font-bold text-rose-600 text-xs sm:text-sm">
+                          {trade.type === "SL" ? trade.value : "-"}
+                        </td>
 
-                      {/* SL column */}
-                      <td className="py-3 px-4 font-bold text-rose-600 text-sm">
-                        {trade.type === "SL" ? trade.value : "-"}
-                      </td>
+                        {/* TP column */}
+                        <td className="py-2.5 sm:py-3 px-2.5 sm:px-4 font-bold text-emerald-600 text-xs sm:text-sm">
+                          {trade.type === "TP" ? trade.value : "-"}
+                        </td>
 
-                      {/* TP column */}
-                      <td className="py-3 px-4 font-bold text-emerald-600 text-sm">
-                        {trade.type === "TP" ? trade.value : "-"}
-                      </td>
-
-                      {/* Merged OUTCOME cell for that day */}
-                      {isFirstRow && (
-                        <td
-                          rowSpan={rowCount}
-                          className={`py-3.5 px-4 align-middle text-center border-l border-r border-slate-200 font-extrabold ${
-                            isTp
-                              ? "bg-emerald-50/50 text-emerald-800"
-                              : isSl
-                              ? "bg-rose-50/50 text-rose-800"
-                              : "bg-slate-50 text-slate-700"
-                          }`}
-                        >
-                          <div
-                            className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold ${
+                        {/* Merged OUTCOME cell for that day */}
+                        {isFirstRow && (
+                          <td
+                            rowSpan={rowCount}
+                            className={`py-3 px-2.5 sm:px-4 align-middle text-center border-l border-r border-slate-200 font-extrabold ${
                               isTp
-                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                ? "bg-emerald-50/50 text-emerald-800"
                                 : isSl
-                                ? "bg-rose-50 text-rose-800 border-rose-200"
-                                : "bg-slate-100 text-slate-700 border-slate-200"
+                                ? "bg-rose-50/50 text-rose-800"
+                                : "bg-slate-50 text-slate-700"
                             }`}
                           >
-                            <span>{group.outcome.outcome}</span>
-                            <span className="text-sm">{group.outcome.value}</span>
+                            <div
+                              className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border text-xs font-bold ${
+                                isTp
+                                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                  : isSl
+                                  ? "bg-rose-50 text-rose-800 border-rose-200"
+                                  : "bg-slate-100 text-slate-700 border-slate-200"
+                              }`}
+                            >
+                              <span>{group.outcome.outcome}</span>
+                              <span className="text-xs sm:text-sm">{group.outcome.value}</span>
+                            </div>
+                          </td>
+                        )}
+
+                        {/* Row actions (Edit / Delete) */}
+                        <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1 sm:gap-1.5">
+                            <button
+                              onClick={() =>
+                                onEditTrade({
+                                  id: trade.id,
+                                  tradeDate: trade.tradeDate,
+                                  tradeTime: trade.tradeTime,
+                                  type: trade.type,
+                                  value: trade.value,
+                                })
+                              }
+                              title="Edit trade"
+                              className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-slate-100 transition-colors"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteTargetId(trade.id)}
+                              title="Delete trade"
+                              className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-rose-700 hover:bg-slate-100 transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
-                      )}
-
-                      {/* Row actions (Edit / Delete) */}
-                      <td className="py-3 px-4 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() =>
-                              onEditTrade({
-                                id: trade.id,
-                                tradeDate: trade.tradeDate,
-                                tradeTime: trade.tradeTime,
-                                type: trade.type,
-                                value: trade.value,
-                              })
-                            }
-                            title="Edit trade"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-slate-100 transition-colors"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTargetId(trade.id)}
-                            title="Delete trade"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-700 hover:bg-slate-100 transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                });
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </tr>
+                    );
+                  });
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* Pagination / Load More */}
