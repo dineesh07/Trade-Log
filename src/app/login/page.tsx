@@ -71,7 +71,7 @@ export default function LoginPage() {
                 htmlFor="email-input"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2"
               >
-                Email or Username
+                Username or Email
               </label>
               <div className="relative">
                 <Mail className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -83,7 +83,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="user01 or trader@example.com"
+                  placeholder="Username or email"
                   className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm font-medium"
                 />
               </div>

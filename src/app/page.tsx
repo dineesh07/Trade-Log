@@ -133,7 +133,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      <Header userEmail={session?.email} />
+      <Header userEmail={session?.email} userName={session?.name ?? undefined} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-10">
         {/* Market Overview showing TP, SL, Total in Forex and Indian Market (no winrate, no net income) */}

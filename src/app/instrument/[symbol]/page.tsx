@@ -57,6 +57,7 @@ export default function InstrumentPage() {
   const [strategies, setStrategies] = useState<StrategyItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | undefined>();
+  const [userName, setUserName] = useState<string | undefined>();
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -88,6 +89,7 @@ export default function InstrumentPage() {
       if (meRes.ok) {
         const meData = await meRes.json();
         setUserEmail(meData.user?.email);
+        setUserName(meData.user?.name);
       }
     } catch (err: any) {
       console.error(err);
@@ -174,7 +176,7 @@ export default function InstrumentPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      <Header userEmail={userEmail} />
+      <Header userEmail={userEmail} userName={userName} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Navigation & Header */}

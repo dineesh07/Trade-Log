@@ -14,9 +14,10 @@ import { ChangePasswordModal } from "./ChangePasswordModal";
 
 interface HeaderProps {
   userEmail?: string;
+  userName?: string;
 }
 
-export function Header({ userEmail }: HeaderProps) {
+export function Header({ userEmail, userName }: HeaderProps) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -50,7 +51,12 @@ export function Header({ userEmail }: HeaderProps) {
     }
   };
 
-  const avatarLetter = userEmail ? userEmail.charAt(0).toUpperCase() : "T";
+  // Compute clean display name (e.g. "user01", "trader")
+  const cleanEmail = userEmail
+    ? userEmail.replace(/@(example\.com|tradelog\.internal)$/i, "")
+    : "";
+  const displayName = userName || cleanEmail || userEmail || "Trader";
+  const avatarLetter = displayName.charAt(0).toUpperCase();
 
   return (
     <>
@@ -81,8 +87,8 @@ export function Header({ userEmail }: HeaderProps) {
                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                   {avatarLetter}
                 </div>
-                <span className="text-xs font-semibold text-slate-700 hidden sm:inline max-w-[130px] truncate">
-                  {userEmail || "Account"}
+                <span className="text-xs font-semibold text-slate-700 hidden sm:inline max-w-[140px] truncate">
+                  {displayName}
                 </span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 transition-colors" />
               </button>
@@ -96,7 +102,7 @@ export function Header({ userEmail }: HeaderProps) {
                       Signed in as
                     </p>
                     <p className="text-sm font-bold text-slate-800 truncate mt-0.5">
-                      {userEmail || "Trader"}
+                      {displayName}
                     </p>
                   </div>
 
