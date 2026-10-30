@@ -27,8 +27,8 @@ export default function LoginPage() {
       if (!res.ok) {
         setError(data.error || "Login failed. Please check your credentials.");
       } else {
-        router.push("/");
-        router.refresh();
+        // Full hard navigation ensures cookie is immediately sent in request headers to middleware and server components
+        window.location.href = "/";
       }
     } catch {
       setError("Network or server error. Please try again.");

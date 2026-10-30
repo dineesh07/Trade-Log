@@ -92,6 +92,13 @@ export async function authenticateCredentials(
   plainPassword: string
 ): Promise<{ user?: SessionUser; error?: string }> {
   try {
+    if (!process.env.DATABASE_URL) {
+      return {
+        error:
+          "DATABASE_URL is not set in Vercel environment variables. Please add DATABASE_URL and DIRECT_URL in Vercel Project Settings > Environment Variables, then redeploy.",
+      };
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },
     });
@@ -114,6 +121,21 @@ export async function authenticateCredentials(
     };
   } catch (err: any) {
     console.error("Authentication error:", err);
-    return { error: "An unexpected error occurred during login. Please check database connection." };
+    const msg = err?.message || String(err);
+    if (msg.includes("DATABASE_URL") || msg.includes("nonempty URL") || !process.env.DATABASE_URL) {
+      return {
+        error:
+          "DATABASE_URL is not set in Vercel. Please add DATABASE_URL and DIRECT_URL in Vercel Settings > Environment Variables, then redeploy.",
+      };
+    }
+    if (msg.includes("Can't reach database server") || msg.includes("P1001")) {
+      return {
+        error:
+          "Cannot reach database server. Please check your Neon database status.",
+      };
+    }
+    return {
+      error: "An unexpected error occurred during login. Please check database connection.",
+    };
   }
 }
