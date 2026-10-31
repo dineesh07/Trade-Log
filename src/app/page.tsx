@@ -4,7 +4,7 @@ import { InstrumentCard } from "@/components/InstrumentCard";
 import { DashboardOverview } from "@/components/DashboardOverview";
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/dates";
-import { calculateOutcome } from "@/lib/outcome";
+import { calculateOutcome, roundNumber } from "@/lib/outcome";
 import { Globe, Landmark } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -92,6 +92,11 @@ export default async function DashboardPage() {
     }
   }
 
+  forexTpValue = roundNumber(forexTpValue);
+  forexSlValue = roundNumber(forexSlValue);
+  indianTpValue = roundNumber(indianTpValue);
+  indianSlValue = roundNumber(indianSlValue);
+
   const forexTotalTrades = forexTpCount + forexSlCount;
   const indianTotalTrades = indianTpCount + indianSlCount;
 
@@ -127,6 +132,11 @@ export default async function DashboardPage() {
       }
     }
   }
+
+  instrumentStats.forEach((stats) => {
+    stats.tpValue = roundNumber(stats.tpValue);
+    stats.slValue = roundNumber(stats.slValue);
+  });
 
   const forexInstruments = instruments.filter((i) => i.market === "FOREX");
   const indianInstruments = instruments.filter((i) => i.market === "INDIAN");

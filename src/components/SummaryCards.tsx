@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { TradeRecord } from "@/lib/stats";
+import { roundNumber } from "@/lib/outcome";
 import {
   format,
   subWeeks,
@@ -77,9 +78,9 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
       }
     }
     return {
-      tpValue,
+      tpValue: roundNumber(tpValue),
       tpCount,
-      slValue,
+      slValue: roundNumber(slValue),
       slCount,
       totalTrades: tpCount + slCount,
     };
@@ -141,9 +142,9 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
       }
     }
     return {
-      tpValue,
+      tpValue: roundNumber(tpValue),
       tpCount,
-      slValue,
+      slValue: roundNumber(slValue),
       slCount,
       totalTrades: tpCount + slCount,
     };
@@ -167,9 +168,9 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
       }
     }
     return {
-      tpValue,
+      tpValue: roundNumber(tpValue),
       tpCount,
-      slValue,
+      slValue: roundNumber(slValue),
       slCount,
       totalTrades: tpCount + slCount,
     };

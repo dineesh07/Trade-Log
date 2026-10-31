@@ -10,7 +10,6 @@ export const tradeSchema = z.object({
   }),
   value: z.coerce
     .number({ invalid_type_error: "Value must be a number" })
-    .int("Value must be an integer")
     .positive("Value must be greater than 0"),
 });
 

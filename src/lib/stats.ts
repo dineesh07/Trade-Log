@@ -1,4 +1,4 @@
-import { calculateOutcome, Outcome, TradeLike } from "./outcome";
+import { calculateOutcome, Outcome, TradeLike, roundNumber } from "./outcome";
 import { getWeekRange, getMonthRange } from "./dates";
 
 export interface TradeRecord extends TradeLike {
@@ -83,7 +83,7 @@ export function computeStrategyStats(
   for (const date of sortedDatesAsc) {
     const dayTrades = daysMap.get(date) || [];
     const outcome = calculateOutcome(dayTrades);
-    running += outcome.net;
+    running = roundNumber(running + outcome.net);
     
     cumulative.push({
       date,

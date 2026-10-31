@@ -105,4 +105,37 @@ describe("calculateOutcome", () => {
       tradeCount: 2,
     });
   });
+
+  it("handles floating point values accurately without IEEE-754 drift", () => {
+    const trades: TradeLike[] = [
+      { type: "TP", value: 0.1 },
+      { type: "TP", value: 0.2 },
+      { type: "SL", value: 0.05 },
+    ];
+    const result = calculateOutcome(trades);
+    expect(result).toEqual({
+      totalTP: 0.3,
+      totalSL: 0.05,
+      net: 0.25,
+      outcome: "TP",
+      value: 0.25,
+      tradeCount: 3,
+    });
+  });
+
+  it("handles break-even with floating numbers", () => {
+    const trades: TradeLike[] = [
+      { type: "TP", value: 1.25 },
+      { type: "SL", value: 1.25 },
+    ];
+    const result = calculateOutcome(trades);
+    expect(result).toEqual({
+      totalTP: 1.25,
+      totalSL: 1.25,
+      net: 0,
+      outcome: "BE",
+      value: 0,
+      tradeCount: 2,
+    });
+  });
 });

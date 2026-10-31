@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getMonthRange } from "@/lib/dates";
-import { calculateOutcome } from "@/lib/outcome";
+import { calculateOutcome, roundNumber } from "@/lib/outcome";
 
 export async function GET(
   request: Request,
@@ -82,9 +82,9 @@ export async function GET(
         instrumentSymbol: instrument.symbol,
         instrumentName: instrument.displayName,
         totalTradeCount: strat.trades.length,
-        tpValue,
+        tpValue: roundNumber(tpValue),
         tpCount,
-        slValue,
+        slValue: roundNumber(slValue),
         slCount,
         createdAt: strat.createdAt,
       };
@@ -96,9 +96,9 @@ export async function GET(
         symbol: instrument.symbol,
         displayName: instrument.displayName,
         market: instrument.market,
-        tpValue: instrumentTpValue,
+        tpValue: roundNumber(instrumentTpValue),
         tpCount: instrumentTpCount,
-        slValue: instrumentSlValue,
+        slValue: roundNumber(instrumentSlValue),
         slCount: instrumentSlCount,
         totalTrades: instrumentTotalTrades,
       },

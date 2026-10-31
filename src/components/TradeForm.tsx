@@ -62,13 +62,21 @@ export function TradeForm({
     setError(null);
   }, [editingTrade, defaultDate]);
 
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(",", ".");
+    // Allow empty string, or digits with at most one decimal point (e.g., "12", "12.", "12.34", ".5")
+    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+      setValue(val);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const intVal = parseInt(value, 10);
-    if (isNaN(intVal) || intVal <= 0) {
-      setError("Value must be a positive whole number (min: 1)");
+    const numVal = parseFloat(value);
+    if (isNaN(numVal) || numVal <= 0) {
+      setError("Value must be a positive number greater than 0");
       return;
     }
     if (!tradeDate) {
@@ -87,7 +95,7 @@ export function TradeForm({
           tradeDate,
           tradeTime,
           type,
-          value: intVal,
+          value: numVal,
         });
         if (onCancelEdit) onCancelEdit();
       } else {
@@ -95,7 +103,7 @@ export function TradeForm({
           tradeDate,
           tradeTime,
           type,
-          value: intVal,
+          value: numVal,
         });
         setValue("");
         setTradeTime(getCurrentTimeIST());
@@ -223,13 +231,12 @@ export function TradeForm({
             </label>
             <input
               id="trade-value-input"
-              type="number"
-              min="1"
-              step="1"
+              type="text"
+              inputMode="decimal"
               required
-              placeholder="e.g. 60"
+              placeholder="e.g. 60 or 1.5"
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={handleValueChange}
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-slate-400"
             />
           </div>

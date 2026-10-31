@@ -15,6 +15,10 @@ export interface Outcome {
   tradeCount: number;
 }
 
+export function roundNumber(val: number, decimals: number = 4): number {
+  return Number(Math.round(Number(val + "e" + decimals)) + "e-" + decimals);
+}
+
 export function calculateOutcome(trades: TradeLike[]): Outcome {
   let totalTP = 0;
   let totalSL = 0;
@@ -22,13 +26,15 @@ export function calculateOutcome(trades: TradeLike[]): Outcome {
     if (t.type === "TP") totalTP += t.value;
     else totalSL += t.value;
   }
-  const net = totalTP - totalSL;
+  totalTP = roundNumber(totalTP);
+  totalSL = roundNumber(totalSL);
+  const net = roundNumber(totalTP - totalSL);
   return {
     totalTP,
     totalSL,
     net,
     outcome: net > 0 ? "TP" : net < 0 ? "SL" : "BE",
-    value: Math.abs(net),
+    value: roundNumber(Math.abs(net)),
     tradeCount: trades.length,
   };
 }
