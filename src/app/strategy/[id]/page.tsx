@@ -86,28 +86,42 @@ export default function StrategyPage() {
         statsUrl += `&startDate=${customStartDate}&endDate=${customEndDate}`;
       }
 
-      const [stratRes, tradesRes, statsRes, meRes] = await Promise.all([
-        fetch(`/api/strategies/${strategyId}`),
+      const fetchPromises: Promise<Response>[] = [
         fetch(
           tableMonth !== "ALL"
             ? `/api/strategies/${strategyId}/trades?month=${tableMonth}`
             : `/api/strategies/${strategyId}/trades`
         ),
         fetch(statsUrl),
-        fetch("/api/auth/me"),
-      ]);
+      ];
 
-      if (stratRes.status === 401 || meRes.status === 401) {
+      const needMeta = !strategy || !userEmail;
+      if (needMeta) {
+        fetchPromises.push(fetch(`/api/strategies/${strategyId}`));
+        fetchPromises.push(fetch("/api/auth/me"));
+      }
+
+      const responses = await Promise.all(fetchPromises);
+      const tradesRes = responses[0];
+      const statsRes = responses[1];
+      const stratRes = needMeta ? responses[2] : null;
+      const meRes = needMeta ? responses[3] : null;
+
+      if (stratRes && stratRes.status === 401) {
+        router.push("/login");
+        return;
+      }
+      if (meRes && meRes.status === 401) {
         router.push("/login");
         return;
       }
 
-      if (stratRes.status === 404) {
+      if (stratRes && stratRes.status === 404) {
         router.push("/");
         return;
       }
 
-      if (stratRes.ok) {
+      if (stratRes && stratRes.ok) {
         const stratData = await stratRes.json();
         setStrategy(stratData);
       }
@@ -122,7 +136,7 @@ export default function StrategyPage() {
         setStats(statsData);
       }
 
-      if (meRes.ok) {
+      if (meRes && meRes.ok) {
         const meData = await meRes.json();
         setUserEmail(meData.user?.email);
         setUserName(meData.user?.name);
@@ -133,7 +147,7 @@ export default function StrategyPage() {
     } finally {
       setLoading(false);
     }
-  }, [strategyId, chartRange, tableMonth, calendarMonth, customStartDate, customEndDate, router, showToast]);
+  }, [strategyId, chartRange, tableMonth, calendarMonth, customStartDate, customEndDate, strategy, userEmail, router, showToast]);
 
   useEffect(() => {
     loadStrategyAndData();

@@ -12,35 +12,42 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await getSession();
 
-  // Fetch instruments with user's strategies
-  const instruments = await prisma.instrument.findMany({
-    orderBy: { sortOrder: "asc" },
-    include: {
-      strategies: {
-        where: { userId: session?.id },
-        select: { id: true },
-      },
-    },
-  });
-
-  // Calculate this month's outcome per instrument
   const { startStr, endStr } = getMonthRange();
-  const monthTrades = session?.id
-    ? await prisma.trade.findMany({
-        where: {
-          userId: session.id,
-          tradeDate: {
-            gte: new Date(startStr + "T00:00:00Z"),
-            lte: new Date(endStr + "T23:59:59Z"),
+
+  // Fetch instruments, month trades, and all trades concurrently in parallel
+  const [instruments, monthTrades, allUserTrades] = await Promise.all([
+    prisma.instrument.findMany({
+      orderBy: { sortOrder: "asc" },
+      include: {
+        strategies: {
+          where: { userId: session?.id },
+          select: { id: true },
+        },
+      },
+    }),
+    session?.id
+      ? prisma.trade.findMany({
+          where: {
+            userId: session.id,
+            tradeDate: {
+              gte: new Date(startStr + "T00:00:00Z"),
+              lte: new Date(endStr + "T23:59:59Z"),
+            },
           },
-        },
-        select: {
-          strategyId: true,
-          type: true,
-          value: true,
-        },
-      })
-    : [];
+          select: {
+            strategyId: true,
+            type: true,
+            value: true,
+          },
+        })
+      : Promise.resolve([]),
+    session?.id
+      ? prisma.trade.findMany({
+          where: { userId: session.id },
+          select: { strategyId: true, type: true, value: true },
+        })
+      : Promise.resolve([]),
+  ]);
 
   // Map strategyId to instrumentId and market
   const strategyToInstrument = new Map<string, string>();
@@ -52,14 +59,6 @@ export default async function DashboardPage() {
       strategyToMarket.set(strat.id, inst.market as "FOREX" | "INDIAN");
     }
   }
-
-  // Fetch all user trades to calculate market breakdown for Forex and Indian market
-  const allUserTrades = session?.id
-    ? await prisma.trade.findMany({
-        where: { userId: session.id },
-        select: { strategyId: true, type: true, value: true },
-      })
-    : [];
 
   let forexTpCount = 0;
   let forexTpValue = 0;

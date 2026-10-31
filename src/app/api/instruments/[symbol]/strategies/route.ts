@@ -18,6 +18,24 @@ export async function GET(
   try {
     const instrument = await prisma.instrument.findUnique({
       where: { symbol },
+      include: {
+        strategies: {
+          where: {
+            userId: session.id,
+          },
+          include: {
+            trades: {
+              select: {
+                id: true,
+                tradeDate: true,
+                type: true,
+                value: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     if (!instrument) {
@@ -27,25 +45,7 @@ export async function GET(
       );
     }
 
-    const { startStr, endStr } = getMonthRange();
-
-    const strategies = await prisma.strategy.findMany({
-      where: {
-        userId: session.id,
-        instrumentId: instrument.id,
-      },
-      include: {
-        trades: {
-          select: {
-            id: true,
-            tradeDate: true,
-            type: true,
-            value: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const strategies = instrument.strategies;
 
     let instrumentTpValue = 0;
     let instrumentTpCount = 0;

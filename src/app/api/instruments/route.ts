@@ -11,32 +11,33 @@ export async function GET() {
   }
 
   try {
-    const instruments = await prisma.instrument.findMany({
-      orderBy: { sortOrder: "asc" },
-      include: {
-        strategies: {
-          where: { userId: session.id },
-          select: { id: true },
-        },
-      },
-    });
-
-    // Get this month's trades for user to calculate this month's net for each instrument
     const { startStr, endStr } = getMonthRange();
-    const monthTrades = await prisma.trade.findMany({
-      where: {
-        userId: session.id,
-        tradeDate: {
-          gte: new Date(startStr + "T00:00:00Z"),
-          lte: new Date(endStr + "T23:59:59Z"),
+
+    const [instruments, monthTrades] = await Promise.all([
+      prisma.instrument.findMany({
+        orderBy: { sortOrder: "asc" },
+        include: {
+          strategies: {
+            where: { userId: session.id },
+            select: { id: true },
+          },
         },
-      },
-      select: {
-        strategyId: true,
-        type: true,
-        value: true,
-      },
-    });
+      }),
+      prisma.trade.findMany({
+        where: {
+          userId: session.id,
+          tradeDate: {
+            gte: new Date(startStr + "T00:00:00Z"),
+            lte: new Date(endStr + "T23:59:59Z"),
+          },
+        },
+        select: {
+          strategyId: true,
+          type: true,
+          value: true,
+        },
+      }),
+    ]);
 
     // Map strategyId to instrument
     const strategyToInstrument = new Map<string, string>();

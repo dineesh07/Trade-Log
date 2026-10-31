@@ -19,69 +19,12 @@ export async function GET(
   const monthParam = searchParams.get("month"); // YYYY-MM for calendar or month filter
 
   try {
-    const strategy = await prisma.strategy.findFirst({
-      where: {
-        id: params.id,
-        userId: session.id,
-      },
-    });
-
-    if (!strategy) {
-      return NextResponse.json(
-        { error: "Strategy not found" },
-        { status: 404 }
-      );
-    }
-
-    // Always fetch current week and current month ranges for the fixed summary cards
     const currentWeekRange = getWeekRange();
     const currentMonthRange = getMonthRange();
 
-    const [weekTradesRaw, monthTradesRaw] = await Promise.all([
-      prisma.trade.findMany({
-        where: {
-          strategyId: strategy.id,
-          userId: session.id,
-          tradeDate: {
-            gte: new Date(currentWeekRange.startStr + "T00:00:00Z"),
-            lte: new Date(currentWeekRange.endStr + "T23:59:59Z"),
-          },
-        },
-      }),
-      prisma.trade.findMany({
-        where: {
-          strategyId: strategy.id,
-          userId: session.id,
-          tradeDate: {
-            gte: new Date(currentMonthRange.startStr + "T00:00:00Z"),
-            lte: new Date(currentMonthRange.endStr + "T23:59:59Z"),
-          },
-        },
-      }),
-    ]);
-
-    // Format week and month trades
-    const weekTrades: TradeRecord[] = weekTradesRaw.map((t) => ({
-      id: t.id,
-      strategyId: t.strategyId,
-      tradeDate: format(t.tradeDate, "yyyy-MM-dd"),
-      tradeTime: t.tradeTime,
-      type: t.type,
-      value: t.value,
-    }));
-
-    const monthTrades: TradeRecord[] = monthTradesRaw.map((t) => ({
-      id: t.id,
-      strategyId: t.strategyId,
-      tradeDate: format(t.tradeDate, "yyyy-MM-dd"),
-      tradeTime: t.tradeTime,
-      type: t.type,
-      value: t.value,
-    }));
-
     // Determine range filter for charts & days
     const rangeWhere: any = {
-      strategyId: strategy.id,
+      strategyId: params.id,
       userId: session.id,
     };
 
@@ -128,13 +71,90 @@ export async function GET(
     }
     // "all" doesn't filter tradeDate
 
-    const rangeTradesRaw = await prisma.trade.findMany({
-      where: rangeWhere,
-      orderBy: [
-        { tradeDate: "asc" },
-        { tradeTime: "asc" },
-      ],
-    });
+    const needsSeparateCalTrades =
+      Boolean(monthParam && /^\d{4}-\d{2}$/.test(monthParam) && range !== "month");
+
+    let calStart: Date | undefined;
+    let calEnd: Date | undefined;
+    if (needsSeparateCalTrades && monthParam) {
+      const [y, m] = monthParam.split("-").map(Number);
+      calStart = new Date(Date.UTC(y, m - 1, 1));
+      calEnd = new Date(Date.UTC(y, m, 0, 23, 59, 59));
+    }
+
+    // Execute all database queries concurrently in parallel
+    const [strategy, weekTradesRaw, monthTradesRaw, rangeTradesRaw, calTradesRaw] =
+      await Promise.all([
+        prisma.strategy.findFirst({
+          where: {
+            id: params.id,
+            userId: session.id,
+          },
+        }),
+        prisma.trade.findMany({
+          where: {
+            strategyId: params.id,
+            userId: session.id,
+            tradeDate: {
+              gte: new Date(currentWeekRange.startStr + "T00:00:00Z"),
+              lte: new Date(currentWeekRange.endStr + "T23:59:59Z"),
+            },
+          },
+        }),
+        prisma.trade.findMany({
+          where: {
+            strategyId: params.id,
+            userId: session.id,
+            tradeDate: {
+              gte: new Date(currentMonthRange.startStr + "T00:00:00Z"),
+              lte: new Date(currentMonthRange.endStr + "T23:59:59Z"),
+            },
+          },
+        }),
+        prisma.trade.findMany({
+          where: rangeWhere,
+          orderBy: [
+            { tradeDate: "asc" },
+            { tradeTime: "asc" },
+          ],
+        }),
+        needsSeparateCalTrades && calStart && calEnd
+          ? prisma.trade.findMany({
+              where: {
+                strategyId: params.id,
+                userId: session.id,
+                tradeDate: { gte: calStart, lte: calEnd },
+              },
+              orderBy: [{ tradeDate: "asc" }, { tradeTime: "asc" }],
+            })
+          : Promise.resolve(null),
+      ]);
+
+    if (!strategy) {
+      return NextResponse.json(
+        { error: "Strategy not found" },
+        { status: 404 }
+      );
+    }
+
+    // Format week and month trades
+    const weekTrades: TradeRecord[] = weekTradesRaw.map((t) => ({
+      id: t.id,
+      strategyId: t.strategyId,
+      tradeDate: format(t.tradeDate, "yyyy-MM-dd"),
+      tradeTime: t.tradeTime,
+      type: t.type,
+      value: t.value,
+    }));
+
+    const monthTrades: TradeRecord[] = monthTradesRaw.map((t) => ({
+      id: t.id,
+      strategyId: t.strategyId,
+      tradeDate: format(t.tradeDate, "yyyy-MM-dd"),
+      tradeTime: t.tradeTime,
+      type: t.type,
+      value: t.value,
+    }));
 
     const rangeTrades: TradeRecord[] = rangeTradesRaw.map((t) => ({
       id: t.id,
@@ -145,29 +165,16 @@ export async function GET(
       value: t.value,
     }));
 
-    // If monthParam is provided and differs from rangeTrades, we also fetch calendar month trades
-    let calendarMonthTrades = rangeTrades;
-    if (monthParam && /^\d{4}-\d{2}$/.test(monthParam) && range !== "month") {
-      const [y, m] = monthParam.split("-").map(Number);
-      const start = new Date(Date.UTC(y, m - 1, 1));
-      const end = new Date(Date.UTC(y, m, 0, 23, 59, 59));
-      const calTradesRaw = await prisma.trade.findMany({
-        where: {
-          strategyId: strategy.id,
-          userId: session.id,
-          tradeDate: { gte: start, lte: end },
-        },
-        orderBy: [{ tradeDate: "asc" }, { tradeTime: "asc" }],
-      });
-      calendarMonthTrades = calTradesRaw.map((t) => ({
-        id: t.id,
-        strategyId: t.strategyId,
-        tradeDate: format(t.tradeDate, "yyyy-MM-dd"),
-        tradeTime: t.tradeTime,
-        type: t.type,
-        value: t.value,
-      }));
-    }
+    const calendarMonthTrades: TradeRecord[] = calTradesRaw
+      ? calTradesRaw.map((t) => ({
+          id: t.id,
+          strategyId: t.strategyId,
+          tradeDate: format(t.tradeDate, "yyyy-MM-dd"),
+          tradeTime: t.tradeTime,
+          type: t.type,
+          value: t.value,
+        }))
+      : rangeTrades;
 
     const stats = computeStrategyStats(rangeTrades, weekTrades, monthTrades);
 
