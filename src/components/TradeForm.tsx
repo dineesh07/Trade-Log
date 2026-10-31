@@ -204,7 +204,7 @@ export function TradeForm({
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                 }`}
               >
-                TP (Target)
+                TP
               </button>
               <button
                 id="trade-type-sl-button"
@@ -216,7 +216,7 @@ export function TradeForm({
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                 }`}
               >
-                SL (Stop Loss)
+                SL
               </button>
             </div>
           </div>

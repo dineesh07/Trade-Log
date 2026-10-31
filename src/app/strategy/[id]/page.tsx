@@ -466,7 +466,7 @@ export default function StrategyPage() {
                       <div className="flex items-center gap-2">
                         <BarChart3 className="w-4 h-4 text-sky-600" />
                         <h4 className="text-sm font-bold text-slate-900">
-                          Target vs Stop Loss Ratio
+                          TP vs SL Ratio
                         </h4>
                       </div>
                     </div>

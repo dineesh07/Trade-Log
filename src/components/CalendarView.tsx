@@ -189,11 +189,11 @@ export function CalendarView({
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
           <div className="flex items-center gap-1.5 whitespace-nowrap">
             <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-md bg-emerald-600 border border-emerald-700 shadow-xs shrink-0" />
-            <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">Target (TP)</span>
+            <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">TP</span>
           </div>
           <div className="flex items-center gap-1.5 whitespace-nowrap">
             <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-md bg-rose-600 border border-rose-700 shadow-xs shrink-0" />
-            <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">Stop Loss (SL)</span>
+            <span className="font-semibold text-slate-700 text-[11px] sm:text-xs">SL</span>
           </div>
           <div className="flex items-center gap-1.5 whitespace-nowrap">
             <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-md bg-slate-600 border border-slate-700 shadow-xs shrink-0" />

@@ -220,18 +220,21 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
 
           {/* 3-column Sub-Cards: TP, SL, Total */}
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-            {/* Target (TP) */}
+            {/* TP */}
             <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                  Target (TP)
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                  TP
                 </span>
                 <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
                   <Target className="w-3 h-3" />
                 </div>
               </div>
               <div>
-                <div className="text-base sm:text-xl font-extrabold text-emerald-600 tracking-tight truncate">
+                <div
+                  title={`+${weekStats.tpValue}`}
+                  className="text-sm sm:text-base md:text-lg lg:text-xl font-extrabold text-emerald-600 tracking-tight truncate"
+                >
                   +{weekStats.tpValue}
                 </div>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
@@ -240,18 +243,21 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
               </div>
             </div>
 
-            {/* Stop Loss (SL) */}
+            {/* SL */}
             <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                  Stop Loss (SL)
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                  SL
                 </span>
                 <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
                   <ShieldAlert className="w-3 h-3" />
                 </div>
               </div>
               <div>
-                <div className="text-base sm:text-xl font-extrabold text-rose-600 tracking-tight truncate">
+                <div
+                  title={`-${weekStats.slValue}`}
+                  className="text-sm sm:text-base md:text-lg lg:text-xl font-extrabold text-rose-600 tracking-tight truncate"
+                >
                   -{weekStats.slValue}
                 </div>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
@@ -325,18 +331,21 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
 
           {/* 3-column Sub-Cards: TP, SL, Total */}
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-            {/* Target (TP) */}
+            {/* TP */}
             <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                  Target (TP)
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                  TP
                 </span>
                 <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
                   <Target className="w-3 h-3" />
                 </div>
               </div>
               <div>
-                <div className="text-base sm:text-xl font-extrabold text-emerald-600 tracking-tight truncate">
+                <div
+                  title={`+${monthStats.tpValue}`}
+                  className="text-sm sm:text-base md:text-lg lg:text-xl font-extrabold text-emerald-600 tracking-tight truncate"
+                >
                   +{monthStats.tpValue}
                 </div>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
@@ -345,18 +354,21 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
               </div>
             </div>
 
-            {/* Stop Loss (SL) */}
+            {/* SL */}
             <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                  Stop Loss (SL)
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                  SL
                 </span>
                 <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
                   <ShieldAlert className="w-3 h-3" />
                 </div>
               </div>
               <div>
-                <div className="text-base sm:text-xl font-extrabold text-rose-600 tracking-tight truncate">
+                <div
+                  title={`-${monthStats.slValue}`}
+                  className="text-sm sm:text-base md:text-lg lg:text-xl font-extrabold text-rose-600 tracking-tight truncate"
+                >
                   -{monthStats.slValue}
                 </div>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
@@ -411,24 +423,27 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
 
           <div className="mb-4">
             <p className="text-xs text-slate-500 font-medium py-1">
-              Cumulative Target vs Stop Loss across all recorded entries
+              Cumulative TP vs SL across all recorded entries
             </p>
           </div>
 
           {/* 3-column Sub-Cards: TP, SL, Total */}
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-            {/* Target (TP) */}
+            {/* TP */}
             <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                  Target (TP)
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                  TP
                 </span>
                 <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
                   <Target className="w-3 h-3" />
                 </div>
               </div>
               <div>
-                <div className="text-base sm:text-xl font-extrabold text-emerald-600 tracking-tight truncate">
+                <div
+                  title={`+${allTimeStats.tpValue}`}
+                  className="text-sm sm:text-base md:text-lg lg:text-xl font-extrabold text-emerald-600 tracking-tight truncate"
+                >
                   +{allTimeStats.tpValue}
                 </div>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">
@@ -437,18 +452,21 @@ export function SummaryCards({ trades }: SummaryCardsProps) {
               </div>
             </div>
 
-            {/* Stop Loss (SL) */}
+            {/* SL */}
             <div className="p-2 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                  Stop Loss (SL)
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                  SL
                 </span>
                 <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
                   <ShieldAlert className="w-3 h-3" />
                 </div>
               </div>
               <div>
-                <div className="text-base sm:text-xl font-extrabold text-rose-600 tracking-tight truncate">
+                <div
+                  title={`-${allTimeStats.slValue}`}
+                  className="text-sm sm:text-base md:text-lg lg:text-xl font-extrabold text-rose-600 tracking-tight truncate"
+                >
                   -{allTimeStats.slValue}
                 </div>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate">

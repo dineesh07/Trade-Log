@@ -267,11 +267,11 @@ export default function InstrumentPage() {
             </div>
 
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4">
-              {/* Target (TP) */}
+              {/* TP */}
               <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                    Target (TP)
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                    TP
                   </span>
                   <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
                     <Target className="w-3.5 h-3.5" />
@@ -288,11 +288,11 @@ export default function InstrumentPage() {
                 </div>
               </div>
 
-              {/* Stop Loss (SL) */}
+              {/* SL */}
               <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                    Stop Loss (SL)
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                    SL
                   </span>
                   <div className="p-1 rounded-lg bg-rose-50 text-rose-600 shrink-0">
                     <ShieldAlert className="w-3.5 h-3.5" />

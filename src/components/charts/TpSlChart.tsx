@@ -27,8 +27,8 @@ export function TpSlChart({ tpCount, slCount }: TpSlChartProps) {
   }
 
   const chartData = [
-    { name: "TP (Target)", value: tpCount, color: "#059669" },
-    { name: "SL (Stop Loss)", value: slCount, color: "#e11d48" },
+    { name: "TP", value: tpCount, color: "#059669" },
+    { name: "SL", value: slCount, color: "#e11d48" },
   ];
 
   return (

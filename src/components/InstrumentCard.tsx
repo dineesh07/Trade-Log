@@ -113,7 +113,7 @@ export function InstrumentCard({
             </div>
           </div>
 
-          {/* Sub-cards: Target (TP), Stop Loss (SL), and Total */}
+          {/* Sub-cards: TP, SL, and Total */}
           <div className="pt-3.5 border-t border-slate-100">
             <div className="flex items-center justify-between text-xs text-slate-500 font-medium mb-3">
               <div className="flex items-center gap-1.5">
@@ -128,11 +128,11 @@ export function InstrumentCard({
             </div>
 
             <div className="grid grid-cols-3 gap-2">
-              {/* Target (TP) */}
+              {/* TP */}
               <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                    Target (TP)
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                    TP
                   </span>
                   <div className="p-0.5 rounded-md bg-emerald-50 text-emerald-600 shrink-0">
                     <Target className="w-3 h-3" />
@@ -148,11 +148,11 @@ export function InstrumentCard({
                 </div>
               </div>
 
-              {/* Stop Loss (SL) */}
+              {/* SL */}
               <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 truncate">
-                    Stop Loss (SL)
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+                    SL
                   </span>
                   <div className="p-0.5 rounded-md bg-rose-50 text-rose-600 shrink-0">
                     <ShieldAlert className="w-3 h-3" />
